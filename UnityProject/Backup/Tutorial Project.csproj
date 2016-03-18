@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+	<ProductVersion>9.0.21022</ProductVersion>
+	<SchemaVersion>2.0</SchemaVersion>
+	<ProjectGuid>{F35C7638-D64A-439B-3B0B-9EC71F00C463}</ProjectGuid>
+	<OutputType>Library</OutputType>
+	<AppDesignerFolder>Properties</AppDesignerFolder>
+	<RootNamespace>Irrelevant</RootNamespace>
+	<AssemblyName>Irrelvant</AssemblyName>
+	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+	<FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+	<DebugSymbols>true</DebugSymbols>
+	<DebugType>full</DebugType>
+	<Optimize>false</Optimize>
+	<OutputPath>Temp\bin\Debug\</OutputPath>
+	<DefineConstants>DEBUG;TRACE;UNITY_3_1_0;UNITY_3_1;UNITY_EDITOR;ENABLE_PROFILER;UNITY_STANDALONE_WIN;ENABLE_GENERICS;ENABLE_DUCK_TYPING;ENABLE_TERRAIN;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CLOTH;ENABLE_WWW</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+	<DebugType>pdbonly</DebugType>
+	<Optimize>true</Optimize>
+	<OutputPath>Temp\bin\Release\</OutputPath>
+	<DefineConstants>TRACE</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+	<Reference Include="System" />
+    <Reference Include="System.XML" />
+	<Reference Include="System.Core" />
+	<Reference Include="UnityEngine">
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
+	</Reference>
+	<Reference Include="UnityEditor">
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
+	</Reference>
+	<Reference Include="Boo.Lang">
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Mono/lib/mono/unity/Boo.Lang.dll</HintPath>
+	</Reference>
+	<Reference Include="UnityScript">
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Mono/lib/mono/unity/UnityScript.dll</HintPath>
+	</Reference>
+  </ItemGroup>
+  <ItemGroup>
+     <None Include="Assets\Blob-Shadow\ProjectorMultiply.shader" />
+     <Compile Include="Assets\Plugins\Input\iPhoneInputSim.cs" />
+     <Compile Include="Assets\Plugins\Input\iPhoneTouchPhaseSim.cs" />
+     <Compile Include="Assets\Plugins\Input\iPhoneTouchSim.cs" />
+     <Compile Include="Assets\Plugins\Input\KeyboardUtility.cs" />
+     <Compile Include="Assets\Plugins\Input\MouseUtility.cs" />
+     <Compile Include="Assets\Plugins\SharpUnit\Assert.cs" />
+     <Compile Include="Assets\Plugins\SharpUnit\TestCase.cs" />
+     <Compile Include="Assets\Plugins\SharpUnit\TestException.cs" />
+     <Compile Include="Assets\Plugins\SharpUnit\TestReporter.cs" />
+     <Compile Include="Assets\Plugins\SharpUnit\TestResult.cs" />
+     <Compile Include="Assets\Plugins\SharpUnit\TestSuite.cs" />
+     <Compile Include="Assets\Plugins\SharpUnit\UnitTest.cs" />
+     <Compile Include="Assets\Plugins\SharpUnit\Unity3D_TestReporter.cs" />
+     <Compile Include="Assets\Plugins\SharpUnit\Unity3D_TestRunner.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Animation\AnimationController.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Animation\AnimationSpeed.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Animation\SimpleRun.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Audio\Audio.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Camera\CameraTransition.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Camera\IInstructorCamera.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Camera\InstructorCamera.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Controls\AutoJumpControl.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Controls\CameraRelativeControl.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Controls\CharacterControl.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Controls\Joystick.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Controls\PlayerRelativeControl.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Controls\TapControl.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Game\ControlMenu.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Game\DepositTrigger.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Game\DestroyInMainScene.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Game\LaunchIntro.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Game\MainCharacter.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Game\ParticlePickup.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Game\PickupManager.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Game\ScoreKeeper.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Instructors\Containers\ContainerPriority.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Instructors\Containers\IInstructorProcessor.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Instructors\Containers\InstructorContainer.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Instructors\Containers\InstructorProcessor.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Instructors\Containers\ITransition.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Instructors\Containers\Transition.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Instructors\Instructor\Instructor.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Instructors\Orienters\FollowTransformOrienter.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Instructors\Orienters\LookAtTargetOrienter.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Instructors\Orienters\Orienter.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Instructors\Positioners\FollowTransformPositioner.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Instructors\Positioners\NetworkMovePositioner.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Instructors\Positioners\NetworkProjectionPositioner.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Instructors\Positioners\Positioner.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Instructors\Positioners\SecondPersonPositioner.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Instructors\Positioners\TargetRelativePositioner.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Movers\FollowTransform.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Movers\InstructorMover.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Movers\SimpleNetworkMover.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Networks\LinearNetwork.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Networks\Network.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Networks\NetworkCursor.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\UnitTests\Camera\MockOrienter.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\UnitTests\Camera\MockPositioner.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\UnitTests\Camera\MockTransition.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\UnitTests\Camera\TestInstructorCameraEasy.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\UnitTests\Camera\TestInstructorCameraHard.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\UnitTests\Camera\TestInstructorCameraInsane.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\UnitTests\Camera\TestInstructorCameraMedium.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\UnitTests\Camera\TestInstructorCameraTrivial.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\UnitTests\Camera\TestRunnerInstructorCamera.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\UnitTests\Camera\TestUtilitiesInstructorCamera.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\UnitTests\Math\TestMath.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\UnitTests\Math\TestRunnerMath.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\UnitTests\Network\TestLinearNetwork.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\UnitTests\Network\TestRunnerLinearNetwork.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Utilities\Assertion.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Utilities\Math.cs" />
+     <None Include="Assets\Scripts\JavaScripts\FadeInFadeOut.js" />
+     <None Include="Assets\Scripts\JavaScripts\RotationConstraint.js" />
+     <None Include="Assets\Scripts\JavaScripts\WaterMovement.js" />
+     <None Include="Assets\Scripts\JavaScripts\ZoomCamera.js" />
+     <None Include="Assets\Scripts\OrbGizmo.js" />
+     <None Include="Assets\Scripts\ParticlePickupJS.js" />
+     <None Include="Assets\Shaders\Alpha-VertexColor-1.shader" />
+     <None Include="Assets\Shaders\Alpha-VertexColor.shader" />
+     <None Include="Assets\Shaders\iphone-lightmap-alphatest.shader" />
+     <None Include="Assets\Shaders\iphone-lightmap-reflective.shader" />
+     <None Include="Assets\Shaders\LightmapOnlyShader.shader" />
+     <None Include="Assets\Shaders\Particle Add Culled.shader" />
+     <None Include="Assets\Shaders\vertexColor.shader" />
+     <None Include="Assets\Shaders\vertexUnlit.shader" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+	   Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  
+</Project>
+	

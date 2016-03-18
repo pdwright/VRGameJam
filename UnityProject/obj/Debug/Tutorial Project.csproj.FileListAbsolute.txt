@@ -1,0 +1,16 @@
+D:\Projects\BartMobile\trunk\Unity\Ressources\Tutorials\Penelope-1\Tutorial Project\Temp\bin\Debug\Irrelvant.dll
+D:\Projects\BartMobile\trunk\Unity\Ressources\Tutorials\Penelope-1\Tutorial Project\Temp\bin\Debug\Irrelvant.pdb
+D:\Projects\BartMobile\trunk\Unity\Ressources\Tutorials\Penelope-1\Tutorial Project\Temp\bin\Debug\Boo.Lang.dll
+D:\Projects\BartMobile\trunk\Unity\Ressources\Tutorials\Penelope-1\Tutorial Project\Temp\bin\Debug\UnityEditor.dll
+D:\Projects\BartMobile\trunk\Unity\Ressources\Tutorials\Penelope-1\Tutorial Project\Temp\bin\Debug\UnityEngine.dll
+D:\Projects\BartMobile\trunk\Unity\Ressources\Tutorials\Penelope-1\Tutorial Project\Temp\bin\Debug\UnityScript.dll
+D:\Projects\BartMobile\trunk\Unity\Ressources\Tutorials\Penelope-1\Tutorial Project\Temp\bin\Debug\nunit.framework.dll
+D:\Projects\BartMobile\trunk\Unity\Ressources\Tutorials\Penelope-1\Tutorial Project\Temp\bin\Debug\Boo.Lang.Compiler.dll
+D:\Projects\BartMobile\trunk\Unity\Ressources\Tutorials\Penelope-1\Tutorial Project\Temp\bin\Debug\UnityScript.Lang.dll
+D:\Projects\BartMobile\trunk\Unity\Ressources\Tutorials\Penelope-1\Tutorial Project\Temp\bin\Debug\Boo.Lang.PatternMatching.dll
+D:\Projects\BartMobile\trunk\Unity\Ressources\Tutorials\Penelope-1\Tutorial Project\Temp\bin\Debug\Boo.Lang.Parser.dll
+D:\Projects\BartMobile\trunk\Unity\Ressources\Tutorials\Penelope-1\Tutorial Project\Temp\bin\Debug\Boo.Lang.Useful.dll
+D:\Projects\BartMobile\trunk\Unity\Ressources\Tutorials\Penelope-1\Tutorial Project\Temp\bin\Debug\Mono.Security.dll
+D:\Projects\BartMobile\trunk\Unity\Ressources\Tutorials\Penelope-1\Tutorial Project\obj\Debug\ResolveAssemblyReference.cache
+D:\Projects\BartMobile\trunk\Unity\Ressources\Tutorials\Penelope-1\Tutorial Project\obj\Debug\Irrelvant.dll
+D:\Projects\BartMobile\trunk\Unity\Ressources\Tutorials\Penelope-1\Tutorial Project\obj\Debug\Irrelvant.pdb
