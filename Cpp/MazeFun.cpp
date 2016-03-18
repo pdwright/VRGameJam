@@ -1,5 +1,5 @@
 // MazeFun.cpp : Defines the entry point for the console application.
-//
+// MODIF POUR LE FUN
 
 #include "stdafx.h"
 
