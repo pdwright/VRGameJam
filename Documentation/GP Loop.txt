@@ -1,0 +1,22 @@
+Hunter dans le labyrinthe avec flashlight et boussole.
+La boussole indique la direction (et la distance?) où se trouve l'item magique.
+Le Tracker ne voit pas où est l'item, qui se téléporte à intervalle régulier.
+Le Hunter doit aller chercher l'item tout en évitant le monstre. Une fois qu'il a l'item, il peut maintenant aller tuer le monstre qui s'enfuit de lui.
+
+
+
+Labyrinthe :
+Labyrinthe avec portes qui peuvent être ouvertes ou fermées.
+Le Tracker voit où se trouve les portes, mais ne voit pas leur état.
+Le Hunter peut voir l'état des portes.
+
+Monstre :
+Le monstre possède un radius de détection. Si le joueur se trouve dans le radius, il tombe en mode home-in sur le joueur, qui doit s'enfuir.
+Sinon, le monstre se balade "aléatoirement" dans le labyrinthe.
+Lorsque le joueur arrive à l'item magique et tente de l'activer, le monstre l'entend et home-in directement sur lui.
+Lorsque le joueur possède l'item magique, le monstre tente de s'enfuir du joueur.
+
+Item magique :
+L'item magique spawn random dans le labyrinthe. Il reste au même endroit durant un intervalle défini et se téléporte ensuite à un nouvel endroit.
+Pour l'activer, le joueur doit interagir avec durant un certain temps.
+Une fois activé, le joueur peut tuer le monstre avec.
