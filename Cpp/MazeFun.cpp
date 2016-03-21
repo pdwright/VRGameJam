@@ -1,5 +1,5 @@
 // MazeFun.cpp : Defines the entry point for the console application.
-// MODIF POUR LE FUN
+//
 
 #include "stdafx.h"
 
@@ -18,12 +18,15 @@
 #include <unordered_map>
 #include <memory>
 #include <time.h>       /* time */
+#include <bitset>
+
 namespace Maze
 {
 	using std::array;
 	using std::bitset;
 	using std::vector;
 	using std::pair;
+
 
 	enum Direction : size_t
 	{
@@ -43,17 +46,51 @@ namespace Maze
 		std::mt19937 g(rd());
 	}
 
+	Direction Opposite(Direction _dir) 
+	{ 
+		if(_dir == Direction::Count)
+			return Direction::Count;
+		return static_cast<Direction>((_dir + 2) % Direction::Count); 
+	}
+
+	template<typename F>
+	void ForEachDir(const F& _f)
+	{
+		for (size_t i = 0; i < Direction::Count; ++i)
+			_f(static_cast<Direction>(i));
+	}
+
+	template<typename F>
+	void ForEachDirRandomOrder(const F& _f)
+	{
+		array<Direction, Direction::Count> directions = { North, East, South, West };
+
+		std::shuffle(directions.begin(), directions.end(), g);
+
+		for (auto d : directions)
+			_f(d);
+	}
+
+
 	class BaseMaze
 	{
-	protected:
+	public:
 		enum WallState
 		{
 			Empty,
 			Wall,
 			OpenDoor,
 			ClosedDoor,
+
+			Count
 		};
 
+		static const std::bitset<WallState::Count> IsWalled;
+		static const std::bitset<WallState::Count> IsDoor;
+		static const std::bitset<WallState::Count> IsClosedDoor;
+		static const std::bitset<WallState::Count> IsOpenDoor;
+
+	protected:
 		struct CellData
 		{
 			CellData() { walls.fill(Empty); }
@@ -65,7 +102,7 @@ namespace Maze
 
 			bool IsFullyWalled() const
 			{
-				return std::find_if(walls.begin(), walls.end(), [](auto wallState) {return wallState != Wall; }) == walls.end();
+				return std::find_if(walls.begin(), walls.end(), [](WallState wallState) {return !IsWalled.test(wallState); }) == walls.end();
 			}
 
 			Direction GetFirstHole() const
@@ -76,19 +113,39 @@ namespace Maze
 				return static_cast<Direction>(walls.size());
 			}
 
-			bool HasWall(Direction _dir) const
+			bool TestDir(Direction _dir, const std::bitset<WallState::Count>& _cond) const
 			{
-				return walls[_dir] == Wall;
+				return _cond.test(walls[_dir]);
+			}
+
+			void OpenDoor(Direction _dir)
+			{
+				assert(TestDir(_dir, IsDoor));
+				walls[_dir] = WallState::OpenDoor;
+			}
+
+			void CloseDoor(Direction _dir)
+			{
+				assert(TestDir(_dir, IsDoor));
+				walls[_dir] = WallState::ClosedDoor;
 			}
 
 			size_t WallCount() const
 			{
-				return std::count(walls.begin(), walls.end(), Wall);
+				return std::count_if(walls.begin(), walls.end(), [](WallState w){ return IsWalled.test(w); });
 			}
 
 			void BreakWall(Direction _dir, bool _withDoor)
 			{
-				walls[_dir] = _withDoor ? OpenDoor : Empty;
+				walls[_dir] = _withDoor ? WallState::OpenDoor : Empty;
+			}
+
+			void FlipDoor(Direction _dir)
+			{
+				if(walls[_dir] == WallState::OpenDoor)
+					walls[_dir] = WallState::ClosedDoor;
+				else if(walls[_dir] == WallState::ClosedDoor)
+					walls[_dir] = WallState::OpenDoor;
 			}
 
 			const char* GetChar(Direction _dir) const
@@ -97,10 +154,10 @@ namespace Maze
 				{
 					switch (walls[_dir])
 					{
-					case Empty: return " ";
-					case Wall: return "_";
-					case OpenDoor: return ".";
-					case ClosedDoor: return "_";
+					case WallState::Empty: return " ";
+					case WallState::Wall: return "_";
+					case WallState::OpenDoor: return ".";
+					case WallState::ClosedDoor: return "=";
 					}
 				}
 
@@ -108,10 +165,10 @@ namespace Maze
 				{
 					switch (walls[_dir])
 					{
-					case Empty: return " ";
-					case Wall: return "|";
-					case OpenDoor: return ".";
-					case ClosedDoor: return "|";
+					case WallState::Empty: return " ";
+					case WallState::Wall: return "|";
+					case WallState::OpenDoor: return ".";
+					case WallState::ClosedDoor: return "/";
 					}
 				}
 
@@ -121,12 +178,17 @@ namespace Maze
 			void GetNeighbours(vector<Direction>& _neighbours) const
 			{
 				_neighbours.clear();
-				for (size_t i = 0; i < walls.size(); ++i)
+
+				ForEachDir([&_neighbours, this](Direction dir)
 				{
-					if (walls[i] == Empty || walls[i] == OpenDoor)
-						_neighbours.push_back(static_cast<Direction>(i));
-				}
+					if(!TestDir(dir, IsWalled))
+						_neighbours.push_back(dir);
+				});
 			}
+
+			//should be used for validation only
+			WallState GetWallState(Direction _dir) const
+			{ return walls[_dir]; }
 
 		private:
 			array<WallState, Direction::Count> walls;
@@ -134,6 +196,14 @@ namespace Maze
 
 	public:
 		BaseMaze() {}
+
+		template<typename F>
+		void ForEachCell(const F& _f) const
+		{
+			for (int i = 0; i < Width(); ++i)
+				for (int j = 0; j < Height(); ++j)
+					_f(GetCellInternal(i, j));
+		}
 
 		void Generate()
 		{
@@ -143,31 +213,27 @@ namespace Maze
 
 		void Braid(bool _withDoors = false)
 		{
-			for (int i = 0; i < Width(); ++i)
+			ForEachCellWithCoord([_withDoors, this](CellData& curCell, int x, int y) 
 			{
-				for (int j = 0; j < Height(); ++j)
+				const size_t wallCount = curCell.WallCount();
+				if (wallCount < 3)
+					return;
+
+				const Direction firstHole = curCell.GetFirstHole();
+
+				//try removing middle wall in dead end
+				const Direction middleWallDir = static_cast<Direction>((firstHole + 2) % Direction::Count);
+				if (!CarvePath(x, y, middleWallDir, _withDoors))
 				{
-					auto& curCell = GetCell(i, j);
-					const size_t wallCount = curCell.WallCount();
-					if (wallCount < 3)
-						continue;
-
-					const Direction firstHole = curCell.GetFirstHole();
-
-					//try removing middle wall in dead end
-					const Direction middleWallDir = static_cast<Direction>((firstHole + 2) % Direction::Count);
-					if (!CarvePath(i, j, middleWallDir, _withDoors))
+					//if carvePath fails, it's because we are on an edge
+					//try removing the first non-edge wall
+					Direction nextDir = middleWallDir;
+					do
 					{
-						//if carvePath fails, it's because we are on an edge
-						//try removing the first non-edge wall
-						Direction nextDir = middleWallDir;
-						do
-						{
-							nextDir = static_cast<Direction>((nextDir + 1) % Direction::Count);
-						} while (!CarvePath(i, j, nextDir, false));
-					}
+						nextDir = static_cast<Direction>((nextDir + 1) % Direction::Count);
+					} while (!CarvePath(x, y, nextDir, false));
 				}
-			}
+			});
 		}
 
 		bool IsInMaze(int _x, int _y) const
@@ -181,175 +247,39 @@ namespace Maze
 		virtual int Width() const = 0;
 		virtual int Height() const = 0;
 
-	protected:
 
-		virtual CellData& GetCellInternal(int _x, int _y) = 0;
-		virtual const CellData& GetCellInternal(int _x, int _y) const = 0;
-
-		void Reset(bool _allWalls = true)
+		void ShuffleDoors(float _closedDoorChance)
 		{
-			for (int i = 0; i < Width(); ++i)
-				for (int j = 0; j < Height(); ++j)
-					GetCellInternal(i, j).Reset(_allWalls);
-		}
-
-		void CarvePathRecursive(int _fromX, int _fromY)
-		{
-			array<Direction, Direction::Count> directions = { North, East, South, West };
-
-			std::shuffle(directions.begin(), directions.end(), g);
-
-			for (auto dir : directions)
+			_closedDoorChance *= 100.0f;
+			ForEachCellWithCoord([_closedDoorChance, this](CellData& curCell, int _x, int _y)
 			{
-				auto cellInDir = CellInDir(_fromX, _fromY, dir);
-				if (!cellInDir)
-					continue;
-
-				if (!cellInDir->IsFullyWalled())
-					continue;
-
-				CarvePath(_fromX, _fromY, dir);
-				CarvePathRecursive(_fromX + xDelta[dir], _fromY + yDelta[dir]);
-			}
-		}
-
-		bool CarvePath(int _fromX, int _fromY, Direction _dir, bool _withDoor = false)
-		{
-			auto nextCell = CellInDir(_fromX, _fromY, _dir);
-
-			if (!nextCell)
-				return false;
-
-			//if path is already carved return false
-			if (!GetCell(_fromX, _fromY).HasWall(_dir))
-				return false;
-
-			GetCellInternal(_fromX, _fromY).BreakWall(_dir, _withDoor);
-			nextCell->BreakWall(Opposite(_dir), _withDoor);
-			return true;
-		}
-
-		CellData* CellInDir(int _fromX, int _fromY, Direction _dir)
-		{
-			const int destX = _fromX + xDelta[_dir];
-			const int destY = _fromY + yDelta[_dir];
-
-			if (destX < 0 || destX >= static_cast<int>(Width()) || destY < 0 || destY >= static_cast<int>(Height()))
-				return nullptr;
-
-			return &GetCellInternal(destX, destY);
-		}
-
-		constexpr static Direction Opposite(Direction _dir) { return static_cast<Direction>((_dir + 2) % Direction::Count); }
-	};
-
-	template<int WIDTH, int HEIGHT>
-	class Maze : public BaseMaze
-	{
-	
-	public:
-		Maze() : BaseMaze()
-		{
-			Generate();
-		}		
-
-		virtual int Width() const override { return WIDTH; }
-		virtual int Height() const override { return HEIGHT; }
-
-	protected:
-		virtual CellData& GetCellInternal(int _x, int _y) override { return mCells[_x][_y]; }
-		virtual const CellData& GetCellInternal(int _x, int _y) const override { return mCells[_x][_y]; }
-
-	private:
-		array<array<CellData, HEIGHT>, WIDTH> mCells;
-	};
-
-
-	class Monster
-	{
-	public:
-		Monster(const BaseMaze& _maze)
-			: mMaze(_maze)
-			, mPosX(0)
-			, mPosY(0)
-		{
-			mVisitedCount.resize(mMaze.Width());
-			
-			for (int i = 0; i < mMaze.Width(); ++i)
-				mVisitedCount[i].resize(mMaze.Height(), 0);
-		}
-
-		void Move(Direction _dir)
-		{
-			mVisitedCount[mPosX][mPosY]++;
-			mPosX += xDelta[_dir];
-			mPosY += yDelta[_dir];
-		}
-
-		void Wander()
-		{
-			vector<pair<Direction, int>> possibilities;
-			possibilities.reserve(Direction::Count);
-
-			const int randOffset = rand();
-
-			for (int i = 0; i < Direction::Count; ++i)
-			{
-				Direction curDir = static_cast<Direction>((i + randOffset) % Direction::Count);
-				
-				if (!CanTravelTo(curDir))
+				ForEachDir([&curCell, _closedDoorChance, _x, _y, this](Direction dir)
 				{
-					possibilities.emplace_back(curDir, std::numeric_limits<int>::max());
-					continue;
-				}
+					if(!curCell.TestDir(dir, IsDoor))
+						return;
 
-				const int nextPosX = mPosX + xDelta[curDir];
-				const int nextPosY = mPosY + yDelta[curDir];
-				possibilities.emplace_back(curDir, mVisitedCount[nextPosX][nextPosY]);
-			}
+					auto nextCell = CellInDir(_x, _y, dir);
 
-			std::sort(begin(possibilities), end(possibilities), [](const auto& _lhs, const auto& _rhs) { return _lhs.second < _rhs.second; });
-
-			assert(possibilities[0].second < std::numeric_limits<int>::max());
-			Move(possibilities[0].first);
+					if(static_cast<float>(rand() % 100) < _closedDoorChance)
+					{
+						curCell.CloseDoor(dir);
+						if(nextCell)
+							nextCell->CloseDoor(Opposite(dir));
+					}
+					else
+					{
+						curCell.OpenDoor(dir);
+						if(nextCell)
+							nextCell->OpenDoor(Opposite(dir));
+					}
+				});
+			});
 		}
 
-
-		vector<Direction> HomeIn(int _targetX, int _targetY)
-		{
-			vector<Direction> bestPath;
-			FindBestPath(mPosX, mPosY, _targetX, _targetY, bestPath);
-
-			if(!bestPath.empty())
-				Move(bestPath[0]);
-
-			return bestPath;
-		}
-
-
-		bool IsAtPos(int _x, int _y) const
-		{
-			return mPosX == _x && mPosY == _y; 
-		}
-
-		int GetPosX() const { return mPosX; }
-		int GetPosY() const { return mPosY; }
-
-	private:
-		int MoveCost(int _fromX, int _fromY, Direction _dir)
-		{
-			int destX = _fromX + xDelta[_dir];
-			int destY = _fromY + yDelta[_dir];
-
-			if (!IsValidPos(destX, destY))
-				return std::numeric_limits<int>::max();
-
-			return mVisitedCount[destX][destY];
-		}
 
 		void FindBestPath(int _fromX, int _fromY, int _toX, int _toY, vector<Direction>& _path) const
 		{
-			assert(mMaze.IsInMaze(_fromX, _fromY) && mMaze.IsInMaze(_toX, _toY));
+			assert(IsInMaze(_fromX, _fromY) && IsInMaze(_toX, _toY));
 
 			typedef std::pair<int, int> Position;
 			typedef std::pair<Position, int> PrioritizedPos;
@@ -369,7 +299,7 @@ namespace Maze
 			auto heuristic = [](const Position& _p1, const Position& _p2) 
 			{
 				return std::abs(static_cast<int>(_p1.first) - static_cast<int>(_p2.first))
-					 + std::abs(static_cast<int>(_p1.second) - static_cast<int>(_p2.second));
+					+ std::abs(static_cast<int>(_p1.second) - static_cast<int>(_p2.second));
 			};
 
 			const Position start(_fromX, _fromY);
@@ -395,7 +325,7 @@ namespace Maze
 				if(current == goal)
 					break;
 
-				mMaze.GetCell(current.first, current.second).GetNeighbours(neighbours);
+				GetCell(current.first, current.second).GetNeighbours(neighbours);
 				for (auto d : neighbours)
 				{
 					const Position next(current.first + xDelta[d], current.second + yDelta[d]);
@@ -429,17 +359,266 @@ namespace Maze
 					assert(false);
 					return Direction::Count;
 				}
-					
+
 			};
 
 			auto current = goal;
 			while (current != start)
 			{
+				assert(cameFrom.count(current));
 				const auto prev = cameFrom[current];
 				_path.push_back(getDir(prev, current));
 				current = prev;
 			}
 			std::reverse(_path.begin(), _path.end());
+		}
+
+		void ValidateMazeState()
+		{
+			ForEachCellWithCoord([this](const CellData& _cell, int _x, int _y)
+			{
+				ForEachDir([_cell, _x, _y, this](Direction _dir)
+				{
+					auto nextCell = CellInDir(_x, _y, _dir);
+					if(nextCell)
+					{
+						assert(_cell.GetWallState(_dir) == nextCell->GetWallState(Opposite(_dir)));
+						assert(_cell.WallCount() != 4);
+					}
+				});
+			});
+		}
+
+	protected:
+
+		virtual CellData& GetCellInternal(int _x, int _y) = 0;
+		virtual const CellData& GetCellInternal(int _x, int _y) const = 0;
+
+		template<typename F>
+		void ForEachCell(const F& _f)
+		{
+			for (int i = 0; i < Width(); ++i)
+				for (int j = 0; j < Height(); ++j)
+					_f(GetCellInternal(i, j));
+		}
+
+		template<typename F>
+		void ForEachCellWithCoord(const F& _f)
+		{
+			for (int i = 0; i < Width(); ++i)
+				for (int j = 0; j < Height(); ++j)
+					_f(GetCellInternal(i, j), i, j);
+		}
+
+		void Reset(bool _allWalls = true)
+		{
+			ForEachCell([_allWalls](CellData& _cell) { _cell.Reset(_allWalls); });
+		}
+
+		void CarvePathRecursive(int _fromX, int _fromY)
+		{
+			ForEachDirRandomOrder([this, _fromX, _fromY](Direction dir)
+			{
+				auto cellInDir = CellInDir(_fromX, _fromY, dir);
+				if (!cellInDir)
+					return;
+
+				if (!cellInDir->IsFullyWalled())
+					return;
+
+				CarvePath(_fromX, _fromY, dir);
+				CarvePathRecursive(_fromX + xDelta[dir], _fromY + yDelta[dir]);
+			});
+		}
+
+		bool CarvePath(int _fromX, int _fromY, Direction _dir, bool _withDoor = false)
+		{
+			auto nextCell = CellInDir(_fromX, _fromY, _dir);
+
+			if (!nextCell)
+				return false;
+
+			//if path is already carved return false
+			if (!GetCell(_fromX, _fromY).TestDir(_dir, IsWalled))
+				return false;
+
+			GetCellInternal(_fromX, _fromY).BreakWall(_dir, _withDoor);
+			nextCell->BreakWall(Opposite(_dir), _withDoor);
+			return true;
+		}
+
+		CellData* CellInDir(int _fromX, int _fromY, Direction _dir)
+		{
+			const int destX = _fromX + xDelta[_dir];
+			const int destY = _fromY + yDelta[_dir];
+
+			if (destX < 0 || destX >= static_cast<int>(Width()) || destY < 0 || destY >= static_cast<int>(Height()))
+				return nullptr;
+
+			return &GetCellInternal(destX, destY);
+		}
+	};
+
+	const std::bitset<BaseMaze::WallState::Count> BaseMaze::IsWalled((1 << BaseMaze::WallState::Wall) | (1 << BaseMaze::WallState::ClosedDoor));
+	const std::bitset<BaseMaze::WallState::Count> BaseMaze::IsDoor((1 << BaseMaze::WallState::OpenDoor) | (1 << BaseMaze::WallState::ClosedDoor));
+	const std::bitset<BaseMaze::WallState::Count> BaseMaze::IsClosedDoor((1 << BaseMaze::WallState::ClosedDoor));
+	const std::bitset<BaseMaze::WallState::Count> BaseMaze::IsOpenDoor((1 << BaseMaze::WallState::OpenDoor));
+
+
+	//2 alloc strategies because why not
+	template<int WIDTH, int HEIGHT>
+	class StaticMaze : public BaseMaze
+	{
+	
+	public:
+		StaticMaze() : BaseMaze()
+		{
+			Generate();
+		}		
+
+		virtual int Width() const override { return WIDTH; }
+		virtual int Height() const override { return HEIGHT; }
+
+	protected:
+		virtual CellData& GetCellInternal(int _x, int _y) override { return mCells[_x][_y]; }
+		virtual const CellData& GetCellInternal(int _x, int _y) const override { return mCells[_x][_y]; }
+
+	private:
+		array<array<CellData, HEIGHT>, WIDTH> mCells;
+	};
+
+	class Maze : public BaseMaze
+	{
+	public:
+		Maze(int _width, int _height) : BaseMaze()
+		{
+			mCells.resize(_width);
+			for(auto& col : mCells)
+				col.resize(_height);
+
+			Generate();
+		}
+
+		virtual int Width() const override { return mCells.size(); }
+		virtual int Height() const override { return mCells[0].size(); }
+
+	protected:
+		virtual CellData& GetCellInternal(int _x, int _y) override { return mCells[_x][_y]; }
+		virtual const CellData& GetCellInternal(int _x, int _y) const override { return mCells[_x][_y]; }
+
+	private:
+		vector<vector<CellData>> mCells;
+	};
+
+
+	class Monster
+	{
+	public:
+		Monster(const BaseMaze& _maze)
+			: mMaze(_maze)
+			, mPosX(0)
+			, mPosY(0)
+			, mLastMove(Direction::Count)
+		{
+			mVisitedCount.resize(mMaze.Width());
+			
+			for (int i = 0; i < mMaze.Width(); ++i)
+				mVisitedCount[i].resize(mMaze.Height(), 0);
+		}
+
+		void Move(Direction _dir)
+		{
+			if(mMaze.GetCell(mPosX, mPosY).TestDir(_dir, BaseMaze::IsWalled))
+			{
+				assert(false);
+				return;
+			}
+
+			mVisitedCount[mPosX][mPosY]++;
+			mPosX += xDelta[_dir];
+			mPosY += yDelta[_dir];
+			mLastMove = _dir;
+		}
+
+		void Wander(int _targetX = 0, int _targetY = 0, float _fHomeInProbability = 0.0f)
+		{
+			typedef pair<Direction, int> PrioritizedDirection;
+			vector<PrioritizedDirection> possibilities;
+			possibilities.reserve(Direction::Count);
+
+			const int randOffset = rand();
+
+			const Direction dirToExclude = Opposite(mLastMove);
+
+			ForEachDirRandomOrder([this, &possibilities, dirToExclude](Direction curDir)
+			{
+				if(curDir == dirToExclude)
+					return;
+
+				if (!CanTravelTo(curDir))
+					return;
+
+				const int nextPosX = mPosX + xDelta[curDir];
+				const int nextPosY = mPosY + yDelta[curDir];
+				possibilities.emplace_back(curDir, mVisitedCount[nextPosX][nextPosY]);
+			});
+
+
+			if(possibilities.empty())
+			{
+				if(CanTravelTo(mLastMove))
+					Move(mLastMove);
+				else
+					Move(dirToExclude);
+				return;
+			}
+
+			if(possibilities.size() > 1 && static_cast<float>(rand() % 100) < _fHomeInProbability * 100.0f)
+			{
+				HomeIn(_targetX, _targetY);
+				return;
+			}
+
+			std::sort(begin(possibilities), 
+					  end(possibilities), 
+					  [](const PrioritizedDirection& _lhs, const PrioritizedDirection& _rhs) { return _lhs.second < _rhs.second; });
+
+			assert(possibilities[0].second < std::numeric_limits<int>::max());
+			Move(possibilities[0].first);
+		}
+
+
+		vector<Direction> HomeIn(int _targetX, int _targetY)
+		{
+			vector<Direction> bestPath;
+			mMaze.FindBestPath(mPosX, mPosY, _targetX, _targetY, bestPath);
+
+			if(!bestPath.empty())
+				Move(bestPath[0]);
+
+			bestPath.erase(bestPath.begin(), bestPath.begin()+1);
+			return bestPath;
+		}
+
+
+		bool IsAtPos(int _x, int _y) const
+		{
+			return mPosX == _x && mPosY == _y; 
+		}
+
+		int GetPosX() const { return mPosX; }
+		int GetPosY() const { return mPosY; }
+
+	private:
+		int MoveCost(int _fromX, int _fromY, Direction _dir)
+		{
+			int destX = _fromX + xDelta[_dir];
+			int destY = _fromY + yDelta[_dir];
+
+			if (!IsValidPos(destX, destY))
+				return std::numeric_limits<int>::max();
+
+			return mVisitedCount[destX][destY];
 		}
 
 		bool IsValidPos(int _x, int _y) const
@@ -455,11 +634,13 @@ namespace Maze
 			if (!IsValidPos(nextPosX, nextPosY))
 				return false;
 
-			return !mMaze.GetCell(mPosX, mPosY).HasWall(_dir);
+			return !mMaze.GetCell(mPosX, mPosY).TestDir(_dir, BaseMaze::IsWalled);
 		}
 
 		int mPosX;
 		int mPosY;
+
+		Direction mLastMove;
 
 		const BaseMaze& mMaze;
 
@@ -515,7 +696,7 @@ namespace Maze
 
 		int curX = _fromX;
 		int curY = _fromY;
-		grid[curX][curY] = 1;
+		grid[curX][curY] = counter++;
 		for (auto d : _path)
 		{
 			curX += xDelta[d];
@@ -544,53 +725,69 @@ int main()
 {
 	srand(static_cast<unsigned int>(time(NULL)));
 
-	Maze::Maze<10, 10> baseMaze;
-	auto braidedMaze = baseMaze;
+	//Maze::Maze baseMaze(30, 30);
+	Maze::StaticMaze<30, 30> braidedMaze;
 	braidedMaze.Braid(true);
 
-	int targetX = rand() % baseMaze.Width();
-	int targetY = rand() % baseMaze.Height();
+	int targetX = rand() % braidedMaze.Width();
+	int targetY = rand() % braidedMaze.Height();
 
 	//auto monster = new Monster(braidedMaze);
-	auto monster = std::make_unique<Maze::Monster>(static_cast<Maze::BaseMaze&>(braidedMaze));
+	//auto monster = std::make_unique<Maze::Monster>(static_cast<Maze::BaseMaze&>(braidedMaze));
+	std::unique_ptr<Maze::Monster> monster(new Maze::Monster(braidedMaze));
 	
 	std::string s;
 
 	int step = 0;
 
+	const bool wander = true;
+	const float homeInRatio = 0.0f;
+	const float closedDoorRatio = 0.25f;
+
+	braidedMaze.ShuffleDoors(closedDoorRatio);
+
 	do
 	{
-		/*if(step == 0)
-			baseMaze.Generate();
-		else
-			baseMaze.Braid();*/
+		braidedMaze.ValidateMazeState();
 
 		if (s == "g")
 		{
-			baseMaze.Generate();
-			braidedMaze = baseMaze;
+			braidedMaze.Generate();
 			braidedMaze.Braid(true);
 			monster.release();
-			monster = std::make_unique<Maze::Monster>(static_cast<Maze::BaseMaze&>(braidedMaze));
+			//monster = std::make_unique<Maze::Monster>(static_cast<Maze::BaseMaze&>(braidedMaze));
+			monster = std::unique_ptr<Maze::Monster>(new Maze::Monster(braidedMaze));
+
+			braidedMaze.ShuffleDoors(closedDoorRatio);
 		}
 		else if (s == "t")
 		{
-			targetX = rand() % baseMaze.Width();
-			targetY = rand() % baseMaze.Height();
+			targetX = rand() % braidedMaze.Width();
+			targetY = rand() % braidedMaze.Height();
+		}
+
+		//OutputToConsole(braidedMaze, *monster);
+
+		++step;
+
+		if(step % 10 == 0)
+			braidedMaze.ShuffleDoors(closedDoorRatio);
+
+		std::vector<Maze::Direction> path;
+
+		if(wander)
+		{
+			monster->Wander(targetX, targetY, homeInRatio);
+			braidedMaze.FindBestPath(monster->GetPosX(), monster->GetPosY(), targetX, targetY, path);
+		}
+		else
+		{
+			path = monster->HomeIn(targetX, targetY);
 		}
 
 		system("cls");
-
 		OutputToConsole(braidedMaze, *monster);
-
-		step = (step + 1) % 2;
-
-		//monster.Wander();
-		const auto prevPosX = monster->GetPosX();
-		const auto prevPosY = monster->GetPosY();
-		auto path = monster->HomeIn(targetX, targetY);
-		DrawPath(prevPosX, prevPosY, braidedMaze, path);
-
+		DrawPath(monster->GetPosX(), monster->GetPosY(), braidedMaze, path);
 
 	} while (getline(std::cin, s));
 
