@@ -594,9 +594,10 @@ namespace Maze
 			mMaze.FindBestPath(mPosX, mPosY, _targetX, _targetY, bestPath);
 
 			if(!bestPath.empty())
+			{
 				Move(bestPath[0]);
-
-			bestPath.erase(bestPath.begin(), bestPath.begin()+1);
+				bestPath.erase(bestPath.begin(), bestPath.begin()+1);
+			}
 			return bestPath;
 		}
 
@@ -741,7 +742,7 @@ int main()
 	int step = 0;
 
 	const bool wander = true;
-	const float homeInRatio = 0.0f;
+	const float homeInRatio = 0.5f;
 	const float closedDoorRatio = 0.25f;
 
 	braidedMaze.ShuffleDoors(closedDoorRatio);
