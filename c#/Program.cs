@@ -12,22 +12,22 @@ using PrioritizedPos = System.Tuple<System.Tuple<int, int>, int>;
 namespace MazeFunCSharp
 {
     enum Direction : uint
-	{
-		North,
-		East,
-		South,
-		West,
-		Count
-	};
+    {
+        North,
+        East,
+        South,
+        West,
+        Count
+    };
 
     static class Util
     {
-        public static Direction Opposite(Direction _dir) 
-	    { 
-		    if(_dir == Direction.Count)
-			    return Direction.Count;
-		    return (Direction)(((int)_dir + 2) % (int)Direction.Count);
-	    }
+        public static Direction Opposite(Direction _dir)
+        {
+            if (_dir == Direction.Count)
+                return Direction.Count;
+            return (Direction)(((int)_dir + 2) % (int)Direction.Count);
+        }
 
         public static void ForEachDir(Action<Direction> _action)
         {
@@ -62,33 +62,33 @@ namespace MazeFunCSharp
         public static int[] yDelta = new int[4] { -1, 0, 1, 0 };
 
         public static void OutputToConsole(Maze _maze, Monster _monster)
-	    {
-		    //draw top border
-		    for (int i = 0; i < _maze.Width(); ++i)
-		    {
-			    Console.Write(" ");
+        {
+            //draw top border
+            for (int i = 0; i < _maze.Width(); ++i)
+            {
+                Console.Write(" ");
                 Console.Write(_maze.GetCell(i, 0).GetChar(Direction.North));
-		    }
-		    Console.Write("\n");
+            }
+            Console.Write("\n");
 
-		    for (int j = 0; j < _maze.Height(); ++j)
-		    {
-			    for (int i = 0; i < _maze.Width(); ++i)
-			    {
-				    var curCell = _maze.GetCell(i, j);
+            for (int j = 0; j < _maze.Height(); ++j)
+            {
+                for (int i = 0; i < _maze.Width(); ++i)
+                {
+                    var curCell = _maze.GetCell(i, j);
 
-				    Console.Write(curCell.GetChar(Direction.West));
+                    Console.Write(curCell.GetChar(Direction.West));
 
-				    if (_monster.IsAtPos(i, j))
-					    Console.Write("*");
-				    else
-					    Console.Write(curCell.GetChar(Direction.South));
-			    }
+                    if (_monster.IsAtPos(i, j))
+                        Console.Write("*");
+                    else
+                        Console.Write(curCell.GetChar(Direction.South));
+                }
 
-			    Console.Write(_maze.GetCell(_maze.Width() - 1, j).GetChar(Direction.East));
-			    Console.Write("\n");
-		    }
-	    }
+                Console.Write(_maze.GetCell(_maze.Width() - 1, j).GetChar(Direction.East));
+                Console.Write("\n");
+            }
+        }
 
         public static void SortedAdd<T>(this List<T> _list, T _elem)
         {
@@ -98,46 +98,46 @@ namespace MazeFunCSharp
         }
 
         public static void DrawPath(int _fromX, int _fromY, Maze _maze, List<Direction> _path)
-	    {
-		    if (_path.Count == 0)
-			    return;
+        {
+            if (_path.Count == 0)
+                return;
 
-		    int[,] grid = new int[_maze.Width(), _maze.Height()];
-            for(int i = 0; i < grid.GetLength(0); ++i)
-                for(int j = 0; j < grid.GetLength(1); ++j)
-                    grid[i,j] = -1;
-		    
-		    int counter = 0;
+            int[,] grid = new int[_maze.Width(), _maze.Height()];
+            for (int i = 0; i < grid.GetLength(0); ++i)
+                for (int j = 0; j < grid.GetLength(1); ++j)
+                    grid[i, j] = -1;
 
-		    int curX = _fromX;
-		    int curY = _fromY;
-		    grid[curX,curY] = counter++;
+            int counter = 0;
 
-		    foreach (var d in _path)
-		    {
-			    curX += xDelta[(int)d];
-			    curY += yDelta[(int)d];
-			    if(curX < _maze.Width() && curY < _maze.Height())
-				    grid[curX, curY] = (counter++ % 10);
-		    }
+            int curX = _fromX;
+            int curY = _fromY;
+            grid[curX, curY] = counter++;
 
-		
-		    for (int j = 0; j < grid.GetLength(1); ++j)
-		    {
-			    for (int i = 0; i < grid.GetLength(0); ++i)
-			    {
-				    if (grid[i,j] >= 0)
-					    Console.Write(" " + grid[i,j]);
-				    else
-					    Console.Write("  ");
-			    }
-			    Console.Write("\n");
-		    }
-	    }
+            foreach (var d in _path)
+            {
+                curX += xDelta[(int)d];
+                curY += yDelta[(int)d];
+                if (curX < _maze.Width() && curY < _maze.Height())
+                    grid[curX, curY] = (counter++ % 10);
+            }
+
+
+            for (int j = 0; j < grid.GetLength(1); ++j)
+            {
+                for (int i = 0; i < grid.GetLength(0); ++i)
+                {
+                    if (grid[i, j] >= 0)
+                        Console.Write(" " + grid[i, j]);
+                    else
+                        Console.Write("  ");
+                }
+                Console.Write("\n");
+            }
+        }
     }
 
-    
-    
+
+
 
     class Maze
     {
@@ -153,10 +153,10 @@ namespace MazeFunCSharp
                 Count
             };
 
-            public static BitVector32 IsWalled = new BitVector32((1 << (int)WallState.Wall) | (1 << (int)WallState.ClosedDoor));
-            public static BitVector32 IsDoor = new BitVector32((1 << (int)WallState.OpenDoor) | (1 << (int)WallState.ClosedDoor));
-            public static BitVector32 IsClosedDoor = new BitVector32((1 << (int)WallState.ClosedDoor));
-            public static BitVector32 IsOpenDoor = new BitVector32((1 << (int)WallState.OpenDoor));
+            public static int IsWalled = ((1 << (int)WallState.Wall) | (1 << (int)WallState.ClosedDoor));
+            public static int IsDoor = ((1 << (int)WallState.OpenDoor) | (1 << (int)WallState.ClosedDoor));
+            public static int IsClosedDoor = ((1 << (int)WallState.ClosedDoor));
+            public static int IsOpenDoor = ((1 << (int)WallState.OpenDoor));
 
             public CellData()
             {
@@ -166,89 +166,95 @@ namespace MazeFunCSharp
             }
 
             public void Reset(bool _allWalls)
-			{
+            {
                 for (uint i = 0; i < walls.Length; ++i)
                     walls[i] = (_allWalls ? WallState.Wall : WallState.Empty);
-			}
+            }
 
-			public bool IsFullyWalled()
-			{
-                return !Array.Exists(walls, w => !IsWalled[BitVector32.CreateMask((int)w)]);
-			}
+            public bool IsFullyWalled()
+            {
+                return !Array.Exists(walls, w => !TestWallState(w, IsWalled));
+            }
 
-            public bool TestDir(Direction _dir, BitVector32 _cond)
-			{
-				return _cond[BitVector32.CreateMask((int)walls[(int)_dir])];
-			}
+            private bool TestWallState(WallState _state, int _cond)
+            {
+                return (_cond & (1 << (int)_state)) != 0;
+            }
+
+            public bool TestDir(Direction _dir, int _cond)
+            {
+                return TestWallState(walls[(int)_dir], _cond);
+            }
 
             public Direction GetFirstHole()
-			{
+            {
                 for (uint i = 0; i < (uint)Direction.Count; ++i)
                     if (walls[i] == WallState.Empty)
                         return (Direction)i;
 
                 return Direction.Count;
-			}
+            }
 
             public void OpenDoor(Direction _dir)
-			{
-				Debug.Assert(TestDir(_dir, IsDoor));
-				walls[(int)_dir] = WallState.OpenDoor;
-			}
+            {
+                Debug.Assert(TestDir(_dir, IsDoor));
+                walls[(int)_dir] = WallState.OpenDoor;
+            }
 
-			public void CloseDoor(Direction _dir)
-			{
-				Debug.Assert(TestDir(_dir, IsDoor));
-				walls[(int)_dir] = WallState.ClosedDoor;
-			}
+            public void CloseDoor(Direction _dir)
+            {
+                Debug.Assert(TestDir(_dir, IsDoor));
+                walls[(int)_dir] = WallState.ClosedDoor;
+            }
 
             public int WallCount()
-			{
-                return Array.FindAll(walls, w => IsWalled[BitVector32.CreateMask((int)w)]).Length;
-			}
+            {
+                Predicate<WallState> pred = w => { return TestWallState(w, IsWalled); };
+                return Array.FindAll(walls, pred).Count();
+            }
 
             public void BreakWall(Direction _dir, bool _withDoor)
-			{
-				walls[(int)_dir] = _withDoor ? WallState.OpenDoor : WallState.Empty;
-			}
+            {
+                walls[(int)_dir] = _withDoor ? WallState.OpenDoor : WallState.Empty;
+            }
 
             public void FlipDoor(Direction _dir)
-			{
-				if(walls[(int)_dir] == WallState.OpenDoor)
-					walls[(int)_dir] = WallState.ClosedDoor;
-				else if(walls[(int)_dir] == WallState.ClosedDoor)
-					walls[(int)_dir] = WallState.OpenDoor;
-			}
+            {
+                if (walls[(int)_dir] == WallState.OpenDoor)
+                    walls[(int)_dir] = WallState.ClosedDoor;
+                else if (walls[(int)_dir] == WallState.ClosedDoor)
+                    walls[(int)_dir] = WallState.OpenDoor;
+            }
 
             public String GetChar(Direction _dir)
-			{
-				if (_dir == Direction.North || _dir == Direction.South)
-				{
-					switch (walls[(int)_dir])
-					{
-					case WallState.Empty: return " ";
-					case WallState.Wall: return "_";
-					case WallState.OpenDoor: return ".";
-					case WallState.ClosedDoor: return "=";
-					}
-				}
+            {
+                if (_dir == Direction.North || _dir == Direction.South)
+                {
+                    switch (walls[(int)_dir])
+                    {
+                        case WallState.Empty: return " ";
+                        case WallState.Wall: return "_";
+                        case WallState.OpenDoor: return ".";
+                        case WallState.ClosedDoor: return "=";
+                    }
+                }
 
                 if (_dir == Direction.East || _dir == Direction.West)
-				{
-					switch (walls[(int)_dir])
-					{
-					case WallState.Empty: return " ";
-					case WallState.Wall: return "|";
-					case WallState.OpenDoor: return ".";
-					case WallState.ClosedDoor: return "/";
-					}
-				}
+                {
+                    switch (walls[(int)_dir])
+                    {
+                        case WallState.Empty: return " ";
+                        case WallState.Wall: return "|";
+                        case WallState.OpenDoor: return ".";
+                        case WallState.ClosedDoor: return "/";
+                    }
+                }
 
-				return "?";
-			}
+                return "?";
+            }
 
-			public List<Direction> GetNeighbours()
-			{
+            public List<Direction> GetNeighbours()
+            {
                 List<Direction> neighbours = new List<Direction>((int)Direction.Count);
 
                 Util.ForEachDir(dir =>
@@ -258,11 +264,11 @@ namespace MazeFunCSharp
                 });
 
                 return neighbours;
-			}
+            }
 
-			//should be used for validation only
-			public WallState GetWallState(Direction _dir)
-			{ return walls[(int)_dir]; }
+            //should be used for validation only
+            public WallState GetWallState(Direction _dir)
+            { return walls[(int)_dir]; }
 
             private WallState[] walls;
         }
@@ -292,13 +298,13 @@ namespace MazeFunCSharp
         {
             for (var j = 0; j < Height(); ++j)
                 for (var i = 0; i < Width(); ++i)
-                    _action(mCells[i,j], i, j);
+                    _action(mCells[i, j], i, j);
         }
 
         protected void Reset(bool _allWalls = true)
-		{
-			ForEachCell(cell => cell.Reset(_allWalls));
-		}
+        {
+            ForEachCell(cell => cell.Reset(_allWalls));
+        }
 
         public void Generate()
         {
@@ -307,7 +313,7 @@ namespace MazeFunCSharp
         }
 
         public void Braid(bool _withDoors = false)
-		{
+        {
             ForEachCellWithCoord((curCell, x, y) =>
             {
                 var wallCount = curCell.WallCount();
@@ -316,23 +322,23 @@ namespace MazeFunCSharp
 
                 Direction firstHole = curCell.GetFirstHole();
 
-				//try removing middle wall in dead end
-				Direction middleWallDir = (Direction)(((int)firstHole + 2) % (int)Direction.Count);
-				if (!CarvePath(x, y, middleWallDir, _withDoors))
-				{
-					//if carvePath fails, it's because we are on an edge
-					//try removing the first non-edge wall
-					Direction nextDir = middleWallDir;
-					do
-					{
-						nextDir = (Direction)(((int)nextDir + 1) % (int)Direction.Count);
-					} while (!CarvePath(x, y, nextDir, false));
-				}
+                //try removing middle wall in dead end
+                Direction middleWallDir = (Direction)(((int)firstHole + 2) % (int)Direction.Count);
+                if (!CarvePath(x, y, middleWallDir, _withDoors))
+                {
+                    //if carvePath fails, it's because we are on an edge
+                    //try removing the first non-edge wall
+                    Direction nextDir = middleWallDir;
+                    do
+                    {
+                        nextDir = (Direction)(((int)nextDir + 1) % (int)Direction.Count);
+                    } while (!CarvePath(x, y, nextDir, false));
+                }
             });
-		}
+        }
 
         private void CarvePathRecursive(int _fromX, int _fromY)
-		{
+        {
             Util.ForEachDirRandomOrder(dir =>
             {
                 var cellInDir = CellInDir(_fromX, _fromY, dir);
@@ -345,7 +351,7 @@ namespace MazeFunCSharp
                 CarvePath(_fromX, _fromY, dir);
                 CarvePathRecursive(_fromX + Util.xDelta[(int)dir], _fromY + Util.yDelta[(int)dir]);
             });
-		}
+        }
 
         private bool CarvePath(int _fromX, int _fromY, Direction _dir, bool _withDoor = false)
         {
@@ -364,8 +370,8 @@ namespace MazeFunCSharp
         }
 
         public void ShuffleDoors(float _closedDoorChance)
-		{
-			_closedDoorChance *= 100.0f;
+        {
+            _closedDoorChance *= 100.0f;
 
             ForEachCellWithCoord((curCell, x, y) =>
             {
@@ -390,59 +396,38 @@ namespace MazeFunCSharp
                     }
                 });
             });
-
-			/*ForEachCellWithCoord([_closedDoorChance, this](CellData& curCell, int _x, int _y)
-			{
-				ForEachDir([&curCell, _closedDoorChance, _x, _y, this](Direction dir)
-				{
-					if(!curCell.TestDir(dir, IsDoor))
-						return;
-
-					auto nextCell = CellInDir(_x, _y, dir);
-
-					if(static_cast<float>(rand() % 100) < _closedDoorChance)
-					{
-						curCell.CloseDoor(dir);
-						if(nextCell)
-							nextCell->CloseDoor(Opposite(dir));
-					}
-					else
-					{
-						curCell.OpenDoor(dir);
-						if(nextCell)
-							nextCell->OpenDoor(Opposite(dir));
-					}
-				});
-			});*/
-		}
+        }
 
         private CellData CellInDir(int _fromX, int _fromY, Direction _dir)
         {
             int destX = _fromX + Util.xDelta[(int)_dir];
             int destY = _fromY + Util.yDelta[(int)_dir];
 
-            if (destX < 0 || destX >= Width()|| destY < 0 || destY >= Height())
+            if (destX < 0 || destX >= Width() || destY < 0 || destY >= Height())
                 return null;
 
             return mCells[destX, destY];
         }
 
         public bool IsInMaze(int _x, int _y)
-		{
-			return _x >= 0 && _x < Width()
-				&& _y >= 0 && _y < Height();
-		}
+        {
+            return _x >= 0 && _x < Width()
+                && _y >= 0 && _y < Height();
+        }
 
         public List<Direction> FindBestPath(int _fromX, int _fromY, int _toX, int _toY)
-		{
+        {
+            List<Direction> path = new List<Direction>();
+
+            if (_fromX == _toX && _fromY == _toY)
+                return path;
+
             Func<Position, Position, int> heuristic = ((p1, p2) =>
             {
                 return Math.Abs(p1.Item1 - p2.Item1) + Math.Abs(p1.Item2 - p2.Item2);
             });
 
-            List<Direction> path = new List<Direction>();
-
-			Debug.Assert(IsInMaze(_fromX, _fromY) && IsInMaze(_toX, _toY));
+            Debug.Assert(IsInMaze(_fromX, _fromY) && IsInMaze(_toX, _toY));
 
             Position start = new Position(_fromX, _fromY);
             Position goal = new Position(_toX, _toY);
@@ -510,25 +495,25 @@ namespace MazeFunCSharp
                 curPos = prev;
             }
             path.Reverse();
-            
+
             return path;
-		}
+        }
 
         public void ValidateMazeState()
-		{
-			ForEachCellWithCoord((_cell, _x, _y) =>
-			{
-				Util.ForEachDir(_dir =>
-				{
-					var nextCell = CellInDir(_x, _y, _dir);
-					if(nextCell != null)
-					{
-						Debug.Assert(_cell.GetWallState(_dir) == nextCell.GetWallState(Util.Opposite(_dir)));
-						Debug.Assert(_cell.WallCount() != 4);
-					}
-				});
-			});
-		}
+        {
+            ForEachCellWithCoord((_cell, _x, _y) =>
+            {
+                Util.ForEachDir(_dir =>
+                {
+                    var nextCell = CellInDir(_x, _y, _dir);
+                    if (nextCell != null)
+                    {
+                        Debug.Assert(_cell.GetWallState(_dir) == nextCell.GetWallState(Util.Opposite(_dir)));
+                        Debug.Assert(_cell.WallCount() != 4);
+                    }
+                });
+            });
+        }
 
         private CellData[,] mCells;
     }
@@ -547,21 +532,24 @@ namespace MazeFunCSharp
         }
 
         public void Move(Direction _dir)
-		{
-			if(mMaze.GetCell(mPosX, mPosY).TestDir(_dir, Maze.CellData.IsWalled))
-			{
-				Debug.Assert(false);
-				return;
-			}
+        {
+            if (mMaze.GetCell(mPosX, mPosY).TestDir(_dir, Maze.CellData.IsWalled))
+            {
+                Debug.Assert(false);
+                return;
+            }
 
-			mVisitedCount[mPosX,mPosY]++;
-			mPosX += Util.xDelta[(int)_dir];
+            mVisitedCount[mPosX, mPosY]++;
+            mPosX += Util.xDelta[(int)_dir];
             mPosY += Util.yDelta[(int)_dir];
-			mLastMove = _dir;
-		}
+            mLastMove = _dir;
+        }
 
         public void Wander(int _targetX = 0, int _targetY = 0, float _fHomeInProbability = 0.0f)
-		{
+        {
+            if (mPosX == _targetX && mPosY == _targetY)
+                return;
+
             var possibilities = new List<Tuple<Direction, int>>();
 
             Direction dirToExclude = Util.Opposite(mLastMove);
@@ -583,7 +571,7 @@ namespace MazeFunCSharp
             {
                 if (CanTravelTo(mLastMove))
                     Move(mLastMove);
-                else if(CanTravelTo(dirToExclude))
+                else if (CanTravelTo(dirToExclude))
                     Move(dirToExclude);
                 return;
             }
@@ -595,7 +583,7 @@ namespace MazeFunCSharp
             }
 
             Move(possibilities.OrderBy(p => p.Item2).ElementAt(0).Item1);
-		}
+        }
 
         public List<Direction> HomeIn(int _targetX, int _targetY)
         {
@@ -610,20 +598,20 @@ namespace MazeFunCSharp
         }
 
         private bool CanTravelTo(Direction _dir)
-		{
-			int nextPosX = mPosX + Util.xDelta[(int)_dir];
-			int nextPosY = mPosY + Util.yDelta[(int)_dir];
+        {
+            int nextPosX = mPosX + Util.xDelta[(int)_dir];
+            int nextPosY = mPosY + Util.yDelta[(int)_dir];
 
-			if (!IsValidPos(nextPosX, nextPosY))
-				return false;
+            if (!IsValidPos(nextPosX, nextPosY))
+                return false;
 
-			return !mMaze.GetCell(mPosX, mPosY).TestDir(_dir, Maze.CellData.IsWalled);
-		}
+            return !mMaze.GetCell(mPosX, mPosY).TestDir(_dir, Maze.CellData.IsWalled);
+        }
 
         private bool IsValidPos(int _x, int _y)
-		{
-			return _x >= 0 && _x < mVisitedCount.GetLength(0) && _y >= 0 && _y < mVisitedCount.GetLength(1);
-		}
+        {
+            return _x >= 0 && _x < mVisitedCount.GetLength(0) && _y >= 0 && _y < mVisitedCount.GetLength(1);
+        }
 
         public bool IsAtPos(int _x, int _y)
         {
@@ -661,12 +649,8 @@ namespace MazeFunCSharp
 
             do
             {
-                //buggy
-                //if (frameCount % 10 == 0)
-                  //  maze.ShuffleDoors(0.35f);
-
                 monster.Wander(targetX, targetY, 0.8f);
-                               
+
                 Console.Clear();
                 Util.OutputToConsole(maze, monster);
 
@@ -676,6 +660,9 @@ namespace MazeFunCSharp
                 string input = Console.ReadLine();
                 if (input == "q")
                     break;
+
+                if (frameCount % 10 == 0 || input == "s")
+                    maze.ShuffleDoors(0.35f);
 
                 ++frameCount;
             } while (true);
