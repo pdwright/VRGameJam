@@ -1,16 +1,81 @@
-﻿using System;
+﻿using UnityEngine;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.Specialized;
-using System.Diagnostics;
 
-using Position = System.Tuple<int, int>;
-using PrioritizedPos = System.Tuple<System.Tuple<int, int>, int>;
+using Position = Tuple<int, int>;
+using PrioritizedPos = Tuple<Tuple<int, int>, int>;
+
+[System.Serializable]
+public class Tuple<T1, T2>
+{
+    public T1 Item1;
+    public T2 Item2;
+
+    private static readonly IEqualityComparer Item1Comparer = EqualityComparer<T1>.Default;
+    private static readonly IEqualityComparer Item2Comparer = EqualityComparer<T2>.Default;
+
+    public Tuple(T1 first, T2 second)
+    {
+        this.Item1 = first;
+        this.Item2 = second;
+    }
+
+    public override string ToString()
+    {
+        return string.Format("<{0}, {1}>", Item1, Item2);
+    }
+
+    public static bool operator ==(Tuple<T1, T2> a, Tuple<T1, T2> b)
+    {
+        if (Tuple<T1, T2>.IsNull(a) && !Tuple<T1, T2>.IsNull(b))
+            return false;
+
+        if (!Tuple<T1, T2>.IsNull(a) && Tuple<T1, T2>.IsNull(b))
+            return false;
+
+        if (Tuple<T1, T2>.IsNull(a) && Tuple<T1, T2>.IsNull(b))
+            return true;
+
+        return
+            a.Item1.Equals(b.Item1) &&
+            a.Item2.Equals(b.Item2);
+    }
+
+    public static bool operator !=(Tuple<T1, T2> a, Tuple<T1, T2> b)
+    {
+        return !(a == b);
+    }
+
+    public override int GetHashCode()
+    {
+        int hash = 17;
+        hash = hash * 23 + Item1.GetHashCode();
+        hash = hash * 23 + Item2.GetHashCode();
+        return hash;
+    }
+
+    public override bool Equals(object obj)
+    {
+        var other = obj as Tuple<T1, T2>;
+        if (object.ReferenceEquals(other, null))
+            return false;
+        else
+            return Item1Comparer.Equals(Item1, other.Item1) &&
+                   Item2Comparer.Equals(Item2, other.Item2);
+    }
+
+    private static bool IsNull(object obj)
+    {
+        return object.ReferenceEquals(obj, null);
+    }
+}
 
 namespace MazeFunCSharp
 {
+    
+
     enum Direction : uint
     {
         North,
@@ -35,12 +100,12 @@ namespace MazeFunCSharp
                 _action((Direction)i);
         }
 
-        public static void Shuffle<T>(this Random rng, T[] array)
+        public static void Shuffle<T>(T[] array)
         {
             int n = array.Length;
             while (n > 1)
             {
-                int k = rng.Next(n--);
+                int k = UnityEngine.Random.Range(0, n);
                 T temp = array[n];
                 array[n] = array[k];
                 array[k] = temp;
@@ -48,11 +113,10 @@ namespace MazeFunCSharp
         }
 
         private static Direction[] directions = new Direction[4] { Direction.North, Direction.East, Direction.South, Direction.West };
-        public static Random rand = new Random();
 
         public static void ForEachDirRandomOrder(Action<Direction> _action)
         {
-            rand.Shuffle(directions);
+            Shuffle(directions);
 
             foreach (var dir in directions)
                 _action(dir);
@@ -210,7 +274,7 @@ namespace MazeFunCSharp
             public int WallCount()
             {
                 Predicate<WallState> pred = w => { return TestWallState(w, IsWalled); };
-                return Array.FindAll(walls, pred).Count();
+                return Array.FindAll(walls, pred).Length;
             }
 
             public void BreakWall(Direction _dir, bool _withDoor)
@@ -371,8 +435,6 @@ namespace MazeFunCSharp
 
         public void ShuffleDoors(float _closedDoorChance)
         {
-            _closedDoorChance *= 100.0f;
-
             ForEachCellWithCoord((curCell, x, y) =>
             {
                 Util.ForEachDir(dir =>
@@ -382,7 +444,7 @@ namespace MazeFunCSharp
 
                     var nextCell = CellInDir(x, y, dir);
 
-                    if (Util.rand.Next(100) < (int)_closedDoorChance)
+                    if (UnityEngine.Random.Range(0.0f, 1.0f) < _closedDoorChance)
                     {
                         curCell.CloseDoor(dir);
                         if (nextCell != null)
@@ -424,17 +486,17 @@ namespace MazeFunCSharp
 
             Func<Position, Position, int> heuristic = ((p1, p2) =>
             {
-                return Math.Abs(p1.Item1 - p2.Item1) + Math.Abs(p1.Item2 - p2.Item2);
+                return Mathf.Abs(p1.Item1 - p2.Item1) + Mathf.Abs(p1.Item2 - p2.Item2);
             });
 
             Debug.Assert(IsInMaze(_fromX, _fromY) && IsInMaze(_toX, _toY));
 
             Position start = new Position(_fromX, _fromY);
             Position goal = new Position(_toX, _toY);
-
+            
             var frontier = new List<PrioritizedPos>();
             frontier.SortedAdd(new PrioritizedPos(start, 0));
-
+            
             var cameFrom = new Dictionary<Position, Position>();
             var costSoFar = new Dictionary<Position, int>();
 
@@ -443,7 +505,7 @@ namespace MazeFunCSharp
 
             while (frontier.Count != 0)
             {
-                var current = frontier.ElementAt(0).Item1;
+                var current = frontier[0].Item1;
                 frontier.RemoveAt(0);
 
                 if (current == goal)
@@ -574,7 +636,7 @@ namespace MazeFunCSharp
                 return;
             }
 
-            if (possibilities.Count > 1 && Util.rand.Next(100) < (int)(_fHomeInProbability * 100.0f))
+            if (possibilities.Count > 1 && UnityEngine.Random.Range(0, 1.0f) < _fHomeInProbability)
             {
                 HomeIn(_targetX, _targetY);
                 return;
@@ -627,44 +689,5 @@ namespace MazeFunCSharp
         private Maze mMaze;
 
         private int[,] mVisitedCount;
-    }
-
-
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            Maze maze = new Maze(30, 30);
-            maze.Braid(true);
-            maze.ValidateMazeState();
-
-            int targetX = 18;
-            int targetY = 18;
-
-            Monster monster = new Monster(maze);
-
-            int frameCount = 0;
-
-            do
-            {
-                monster.Wander(targetX, targetY, 0.8f);
-
-                Console.Clear();
-                Util.OutputToConsole(maze, monster);
-
-                var path = maze.FindBestPath(monster.GetPosX(), monster.GetPosY(), targetX, targetY);
-                Util.DrawPath(monster.GetPosX(), monster.GetPosY(), maze, path);
-
-                string input = Console.ReadLine();
-                if (input == "q")
-                    break;
-
-                if (frameCount % 10 == 0 || input == "s")
-                    maze.ShuffleDoors(0.35f);
-
-                ++frameCount;
-            } while (true);
-
-        }
     }
 }
