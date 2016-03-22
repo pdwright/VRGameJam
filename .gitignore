@@ -1,5 +1,7 @@
 # Unity ignored/temp stuff
 UnityProject/Temp/
+UnityProject/Library/metadata/
+UnityProject/Library/assetDatabase3
 
 # Windows image file caches
 Thumbs.db
