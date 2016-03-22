@@ -2,7 +2,15 @@ fileFormatVersion: 2
 guid: 7cd45834137c646f1824500e1c1b3f6a
 ModelImporter:
   serializedVersion: 19
-  fileIDToRecycleName: {}
+  fileIDToRecycleName:
+    100000: //RootNode
+    100002: cameraLocator
+    100004: curve1
+    400000: //RootNode
+    400002: cameraLocator
+    400004: curve1
+    7400000: loop
+    11100000: //RootNode
   materials:
     importMaterials: 1
     materialName: 3
