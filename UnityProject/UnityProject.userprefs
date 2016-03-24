@@ -2,12 +2,14 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\CSharpScripts\Game\MazeData.cs">
     <Files>
-      <File FileName="Assets\Scripts\CSharpScripts\Game\MazeData.cs" Line="697" Column="44" />
-      <File FileName="Assets\Scripts\CSharpScripts\Game\Maze.cs" Line="40" Column="4" />
+      <File FileName="Assets\Scripts\CSharpScripts\Game\Maze.cs" Line="13" Column="29" />
+      <File FileName="Assets\Scripts\CSharpScripts\Game\MazeData.cs" Line="451" Column="9" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="D:\Projects\VRGameJam\UnityProject\Assets\Scripts\CSharpScripts\Game\Maze.cs" line="13" column="8" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>
