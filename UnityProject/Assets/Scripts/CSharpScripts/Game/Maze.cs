@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Maze : MonoBehaviour
 {
@@ -15,6 +16,12 @@ public class Maze : MonoBehaviour
 		mMazeData.ShuffleDoors(SHUFFLE_CLOSED_DOOR_RATIO);
 
 		mMonster = new MazeData.Monster(mMazeData);
+
+		var baseWalls = GameObject.FindGameObjectsWithTag("SourceWall");
+
+		mfDebugDrawScale = baseWalls[0].GetComponent<Renderer>().bounds.size.x;
+
+		mWalls = MazeData.Util.CreateWalls(mMazeData, baseWalls);
     }
 
     // Update is called once per frame
@@ -41,11 +48,10 @@ public class Maze : MonoBehaviour
 			mfMonsterMoveTimer = 0.0f;
 		}
 
-		float drawScale = 30.0f;
-		MazeData.Util.DebugDraw(mMazeData, drawScale, mMonster);
+		MazeData.Util.DebugDraw(mMazeData, mfDebugDrawScale, mMonster);
 
 		var bestPath = mMazeData.FindBestPath(mMonster.GetPosX(), mMonster.GetPosY(), mMonsterTargetX, mMonsterTargetY);
-		MazeData.Util.DrawPath(mMonster.GetPosX(), mMonster.GetPosY(), bestPath, drawScale);
+		MazeData.Util.DrawPath(mMonster.GetPosX(), mMonster.GetPosY(), bestPath, mfDebugDrawScale);
     }
 
 	private MazeData.Maze mMazeData;
@@ -56,5 +62,9 @@ public class Maze : MonoBehaviour
 
 	private float mfShuffleDoorTimer = 0.0f;
 	private float mfMonsterMoveTimer = 0.0f;
+
+	List<GameObject> mWalls;
+
+	private float mfDebugDrawScale;
 }
 

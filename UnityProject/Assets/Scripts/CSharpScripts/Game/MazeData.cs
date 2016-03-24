@@ -244,6 +244,69 @@ namespace MazeData
 				start = end;
 			}
 		}
+
+		public static List<GameObject> CreateWalls(Maze _fromMaze, GameObject[] _wallSource)
+		{
+			var walls = new List<GameObject>();
+
+			float wallSize = _wallSource[0].GetComponent<Renderer>().bounds.size.x;
+
+			var wallPos = new Vector3();
+
+			Func<GameObject> randSourceWall = () => {return _wallSource[UnityEngine.Random.Range(0, _wallSource.Length)];};
+
+			//top border
+			for(int i = 0; i < _fromMaze.Width(); ++i)
+			{
+				if(_fromMaze.GetCell(i, 0).TestDir(Direction.North, Maze.CellData.IsWall))
+				{
+					wallPos.Set(((float)i + 0.5f) * wallSize, 0.0f, 0.0f);
+					var newWall = (GameObject)UnityEngine.Object.Instantiate(randSourceWall(), wallPos, Quaternion.identity);
+					newWall.SetActive(true);
+					walls.Add(newWall);
+				}
+			}
+
+			//rightmost border
+			wallPos.x = _fromMaze.Width() * wallSize;
+			for(int j = 0; j < _fromMaze.Height(); ++j)
+			{
+				if(_fromMaze.GetCell(_fromMaze.Width() - 1, j).TestDir(Direction.East, Maze.CellData.IsWall))
+				{
+					wallPos.z = ((float)j + 0.5f) * wallSize;
+					var newWall = (GameObject)UnityEngine.Object.Instantiate(randSourceWall(), wallPos, Quaternion.Euler(0, 90, 0));
+					newWall.SetActive(true);
+					walls.Add(newWall);
+				}
+			}
+
+			//west and south walls of each cell
+			for (int j = 0; j < _fromMaze.Height(); ++j)
+			{
+				for (int i = 0; i < _fromMaze.Width(); ++i)
+				{
+					var curCell = _fromMaze.GetCell(i, j);
+
+					if(curCell.TestDir(Direction.South, Maze.CellData.IsWall))
+					{
+						wallPos.Set((float)(i+0.5f) * wallSize, 0.0f, (float)(j+1) * wallSize);
+						var newWall = (GameObject)UnityEngine.Object.Instantiate(randSourceWall(), wallPos, Quaternion.identity);
+						newWall.SetActive(true);
+						walls.Add(newWall);
+					}
+
+					if(curCell.TestDir(Direction.West, Maze.CellData.IsWall))
+					{
+						wallPos.Set((float)(i) * wallSize, 0.0f, (float)(j + 0.5f) * wallSize);
+						var newWall = (GameObject)UnityEngine.Object.Instantiate(randSourceWall(), wallPos, Quaternion.Euler(0, 90, 0));
+						newWall.SetActive(true);
+						walls.Add(newWall);
+					}
+				}
+			}
+
+			return walls;
+		}
     }
 
 
@@ -263,7 +326,8 @@ namespace MazeData
                 Count
             };
 
-            public static int IsWalled = ((1 << (int)WallState.Wall) | (1 << (int)WallState.ClosedDoor));
+            public static int IsBlocked = ((1 << (int)WallState.Wall) | (1 << (int)WallState.ClosedDoor));
+			public static int IsWall = (1 << (int)WallState.Wall);
             public static int IsDoor = ((1 << (int)WallState.OpenDoor) | (1 << (int)WallState.ClosedDoor));
             public static int IsClosedDoor = ((1 << (int)WallState.ClosedDoor));
             public static int IsOpenDoor = ((1 << (int)WallState.OpenDoor));
@@ -284,7 +348,7 @@ namespace MazeData
 
             public bool IsFullyWalled()
             {
-                return !Array.Exists(walls, w => !TestWallState(w, IsWalled));
+                return !Array.Exists(walls, w => !TestWallState(w, IsBlocked));
             }
 
             private bool TestWallState(WallState _state, int _cond)
@@ -320,7 +384,7 @@ namespace MazeData
 
             public int WallCount()
             {
-                Predicate<WallState> pred = w => { return TestWallState(w, IsWalled); };
+                Predicate<WallState> pred = w => { return TestWallState(w, IsBlocked); };
                 return Array.FindAll(walls, pred).Length;
             }
 
@@ -370,7 +434,7 @@ namespace MazeData
 
                 Util.ForEachDir(dir =>
                 {
-                    if (!TestDir(dir, IsWalled))
+                    if (!TestDir(dir, IsBlocked))
                         neighbours.Add(dir);
                 });
 
@@ -472,7 +536,7 @@ namespace MazeData
                 return false;
 
             //if path is already carved return false
-            if (!mCells[_fromX, _fromY].TestDir(_dir, CellData.IsWalled))
+            if (!mCells[_fromX, _fromY].TestDir(_dir, CellData.IsBlocked))
                 return false;
 
             mCells[_fromX, _fromY].BreakWall(_dir, _withDoor);
@@ -658,7 +722,7 @@ namespace MazeData
 
         public void Move(Direction _dir)
         {
-            if (mMaze.GetCell(mPosX, mPosY).TestDir(_dir, Maze.CellData.IsWalled))
+            if (mMaze.GetCell(mPosX, mPosY).TestDir(_dir, Maze.CellData.IsBlocked))
             {
 				Assert.IsTrue(false);
                 return;
@@ -740,7 +804,7 @@ namespace MazeData
             if (!IsValidPos(nextPosX, nextPosY))
                 return false;
 
-            return !mMaze.GetCell(mPosX, mPosY).TestDir(_dir, Maze.CellData.IsWalled);
+            return !mMaze.GetCell(mPosX, mPosY).TestDir(_dir, Maze.CellData.IsBlocked);
         }
 
         private bool IsValidPos(int _x, int _y)

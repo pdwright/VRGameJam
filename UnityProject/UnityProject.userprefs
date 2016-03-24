@@ -2,8 +2,8 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\CSharpScripts\Game\MazeData.cs">
     <Files>
-      <File FileName="Assets\Scripts\CSharpScripts\Game\Maze.cs" Line="13" Column="29" />
-      <File FileName="Assets\Scripts\CSharpScripts\Game\MazeData.cs" Line="451" Column="9" />
+      <File FileName="Assets\Scripts\CSharpScripts\Game\Maze.cs" Line="22" Column="64" />
+      <File FileName="Assets\Scripts\CSharpScripts\Game\MazeData.cs" Line="256" Column="36" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
