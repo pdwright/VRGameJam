@@ -253,7 +253,24 @@ namespace MazeData
 
 			var wallPos = new Vector3();
 
-			Func<GameObject> randSourceWall = () => {return _wallSource[UnityEngine.Random.Range(0, _wallSource.Length)];};
+			var weights = new float[_wallSource.Length];
+			float totalWeight = 0.0f;
+			for(int i = 0; i < _wallSource.Length; ++i)
+			{
+				totalWeight += _wallSource[i].GetComponent<MazeWall>().weight;
+				weights [i] = totalWeight;
+			}
+
+			Func<GameObject> randSourceWall = () => 
+			{
+				float randVal = UnityEngine.Random.Range(0.0f, weights[weights.Length-1]);
+
+				for(int i = 0; i < weights.Length; ++i)
+					if(randVal < weights[i])
+						return _wallSource[i];
+				
+				return _wallSource[_wallSource.Length-1];
+			};
 
 			//top border
 			for(int i = 0; i < _fromMaze.Width(); ++i)

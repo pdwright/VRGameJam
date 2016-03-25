@@ -57,6 +57,7 @@
      <Compile Include="Assets\Scripts\CSharpScripts\Game\MainCharacter.cs" />
      <Compile Include="Assets\Scripts\CSharpScripts\Game\Maze.cs" />
      <Compile Include="Assets\Scripts\CSharpScripts\Game\MazeData.cs" />
+     <Compile Include="Assets\Scripts\CSharpScripts\Game\MazeWall.cs" />
      <Compile Include="Assets\Scripts\CSharpScripts\Utilities\Assertion.cs" />
      <Compile Include="Assets\Scripts\CSharpScripts\Utilities\Math.cs" />
      <None Include="Assets\Shaders\iphone-lightmap-alphatest.shader" />
