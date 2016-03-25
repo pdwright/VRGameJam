@@ -15,7 +15,7 @@ public class Maze : MonoBehaviour
 		mMazeData.Braid(true);
 		mMazeData.ShuffleDoors(SHUFFLE_CLOSED_DOOR_RATIO);
 
-		mMonster = new MazeData.Monster(mMazeData);
+		mMonster = new MazeData.Monster(mMazeData, WIDTH - 2, HEIGHT - 2);
 
 		var baseWalls = GameObject.FindGameObjectsWithTag("SourceWall");
 
@@ -35,7 +35,7 @@ public class Maze : MonoBehaviour
 		}
 
 		mfMonsterMoveTimer += Time.deltaTime;
-		if(mfMonsterMoveTimer > 0.1f)
+		if(mfMonsterMoveTimer > 0.3f)
 		{
 			mMonster.Wander(mMonsterTargetX, mMonsterTargetY, 0.5f);
 
@@ -49,6 +49,10 @@ public class Maze : MonoBehaviour
 		}
 
 		MazeData.Util.DebugDraw(mMazeData, mfDebugDrawScale, mMonster);
+
+		var player = GameObject.Find("Player");
+		mMonsterTargetX = (int)(player.transform.position.x / mfDebugDrawScale);
+		mMonsterTargetY = (int)(player.transform.position.z / mfDebugDrawScale);
 
 		var bestPath = mMazeData.FindBestPath(mMonster.GetPosX(), mMonster.GetPosY(), mMonsterTargetX, mMonsterTargetY);
 		MazeData.Util.DrawPath(mMonster.GetPosX(), mMonster.GetPosY(), bestPath, mfDebugDrawScale);

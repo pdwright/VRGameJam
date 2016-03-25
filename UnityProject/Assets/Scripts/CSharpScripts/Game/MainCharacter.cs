@@ -21,6 +21,7 @@ public class MainCharacter : MonoBehaviour
     private Transform m_ThisTransform;
     private CharacterControl m_Control;
     private Vector3 m_Velocity;
+	private Vector2 mLastMousePosition;
 
     public float m_JumpSpeed = 16.0f;
     public float m_InAirMultiplier = 0.25f;
@@ -39,6 +40,8 @@ public class MainCharacter : MonoBehaviour
         m_ThisTransform = transform;
         m_Character = GetComponent<CharacterController>();
         m_Control = GetComponent<CharacterControl>();
+		mLastMousePosition = (Vector2)Input.mousePosition;
+		Screen.lockCursor = true;
 
         m_AnimationTarget.wrapMode = WrapMode.Loop;
         m_AnimationTarget["jump"].wrapMode = WrapMode.ClampForever;
@@ -215,6 +218,10 @@ public class MainCharacter : MonoBehaviour
         {
             FaceMovementDirection();
         }
+
+		// Mouse look
+		mLastMousePosition = (Vector2)Input.mousePosition;
+		Debug.Log (mLastMousePosition);
     }
 
     void StateMovementTransitions()

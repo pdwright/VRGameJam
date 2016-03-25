@@ -710,10 +710,10 @@ namespace MazeData
 
     class Monster
     {
-        public Monster(Maze _maze)
+		public Monster(Maze _maze, int _startX = 0, int _startY = 0)
         {
-            mPosX = 0;
-            mPosY = 0;
+			mPosX = _startX;
+			mPosY = _startY;
             mLastMove = Direction.Count;
             mMaze = _maze;
 
