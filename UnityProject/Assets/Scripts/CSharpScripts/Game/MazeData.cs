@@ -78,7 +78,7 @@ namespace MazeData
 {
 
 
-    enum Direction : uint
+    public enum Direction : uint
     {
         North,
         East,
@@ -87,7 +87,7 @@ namespace MazeData
         Count
     };
 
-    static class Util
+    static public class Util
     {
         public static Direction Opposite(Direction _dir)
         {
@@ -245,7 +245,7 @@ namespace MazeData
 			}
 		}
 
-		public static List<GameObject> CreateWalls(Maze _fromMaze, GameObject[] _wallSource)
+		public static List<GameObject> CreateWalls(Maze _fromMaze, Transform[] _wallSource)
 		{
 			var walls = new List<GameObject>();
 
@@ -267,9 +267,9 @@ namespace MazeData
 
 				for(int i = 0; i < weights.Length; ++i)
 					if(randVal < weights[i])
-						return _wallSource[i];
+						return _wallSource[i].gameObject;
 				
-				return _wallSource[_wallSource.Length-1];
+				return _wallSource[_wallSource.Length-1].gameObject;
 			};
 
 			//top border
@@ -324,12 +324,44 @@ namespace MazeData
 
 			return walls;
 		}
+
+		public static List<GameObject> CreateDoors(Maze _fromMaze, GameObject _doorObj)
+		{
+			var doors = new List<GameObject>();
+			float doorSize = _doorObj.GetComponent<Renderer>().bounds.size.x;
+			var doorPos = new Vector3();
+
+			for (int j = 0; j < _fromMaze.Height(); ++j)
+			{
+				for (int i = 0; i < _fromMaze.Width(); ++i)
+				{
+					var curCell = _fromMaze.GetCell(i, j);
+
+					if(curCell.TestDir(Direction.South, Maze.CellData.IsDoor))
+					{
+						doorPos.Set((float)(i+0.5f) * doorSize, 0.0f, (float)(j+1) * doorSize);
+						var newDoor = (GameObject)UnityEngine.Object.Instantiate(_doorObj, doorPos, Quaternion.identity);
+						newDoor.SetActive(true);
+						doors.Add(newDoor);
+					}
+
+					if(curCell.TestDir(Direction.West, Maze.CellData.IsDoor))
+					{
+						doorPos.Set((float)(i) * doorSize, 0.0f, (float)(j + 0.5f) * doorSize);
+						var newDoor = (GameObject)UnityEngine.Object.Instantiate(_doorObj, doorPos, Quaternion.Euler(0, 90, 0));
+						newDoor.SetActive(true);
+						doors.Add(newDoor);
+					}
+				}
+			}
+
+			return doors;
+		}
     }
 
 
 
-
-    class Maze
+    public class Maze
     {
         public class CellData
         {
@@ -480,10 +512,36 @@ namespace MazeData
 
         public CellData GetCell(int _x, int _y) { return mCells[_x, _y]; }
 
+		public void ForEachDoor(Action<bool> _action)
+		{
+			ForEachDoorWithCoord((isOpen, i, j) =>
+			{
+				_action(isOpen);
+			});
+		}
+
+		public void ForEachDoorWithCoord(Action<bool, int, int> _action)
+		{
+			for (var j = 0; j < Height(); ++j)
+			{
+				for (var i = 0; i < Width(); ++i)
+				{
+					var cell = mCells[i,j];
+
+					if(cell.TestDir(Direction.West, CellData.IsDoor))
+						_action(cell.TestDir(Direction.West, CellData.IsOpenDoor), i, j);
+					if(cell.TestDir(Direction.South, CellData.IsDoor))
+						_action(cell.TestDir(Direction.South, CellData.IsOpenDoor), i, j);
+				}
+			}
+		}
+
         private void ForEachCell(Action<CellData> _action)
         {
-            foreach (var cell in mCells)
-                _action(cell);
+			ForEachCellWithCoord((cell, i, j) =>
+			{
+					_action(cell);
+			});
         }
 
         private void ForEachCellWithCoord(Action<CellData, int, int> _action)
@@ -725,7 +783,7 @@ namespace MazeData
     }
 
 
-    class Monster
+    public class Monster
     {
 		public Monster(Maze _maze, int _startX = 0, int _startY = 0)
         {

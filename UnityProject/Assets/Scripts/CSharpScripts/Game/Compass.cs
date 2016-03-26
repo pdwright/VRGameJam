@@ -3,6 +3,11 @@ using System.Collections;
 
 public class Compass : MonoBehaviour {
 
+	void Awake()
+	{
+		Debug.Assert(instance == null);
+		instance = this;
+	}
 	// Use this for initialization
 	void Start () 
 	{
@@ -55,6 +60,8 @@ public class Compass : MonoBehaviour {
 	}
 
 	private Vector3 mInitialRot;
-	private Vector3 mTargetPos {get; set;}
+	public Vector3 mTargetPos {get; set;}
 	private Transform mTargetObjTransform;
+
+	static public Compass instance;
 }
