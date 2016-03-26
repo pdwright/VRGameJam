@@ -191,7 +191,7 @@ public class Joystick : MonoBehaviour
     // ----------------------------------------------------------------------------------------------------
     public void Disable()
     {
-        gameObject.active = false;
+		gameObject.SetActive(false);
         m_EnumeratedJoysticks = false;
     }
 

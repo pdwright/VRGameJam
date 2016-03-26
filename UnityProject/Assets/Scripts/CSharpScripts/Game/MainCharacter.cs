@@ -41,7 +41,8 @@ public class MainCharacter : MonoBehaviour
         m_Character = GetComponent<CharacterController>();
         m_Control = GetComponent<CharacterControl>();
 		mLastMousePosition = (Vector2)Input.mousePosition;
-		Screen.lockCursor = true;
+		Cursor.lockState = CursorLockMode.Locked;
+		Cursor.visible = false;
 
         m_AnimationTarget.wrapMode = WrapMode.Loop;
         m_AnimationTarget["jump"].wrapMode = WrapMode.ClampForever;
