@@ -8,6 +8,7 @@ public class PortalManager : MonoBehaviour
 	private class PortalData
 	{
 		private float ACTIVE_DURATION = 30.0f;
+		private float CHARGING_MULTIPLIER = 6.0f;
 		
 		public PortalData(GameObject _obj)
 		{
@@ -28,7 +29,11 @@ public class PortalManager : MonoBehaviour
 
 		public bool Update()
 		{
-			timeActive += Time.deltaTime;
+			if((pos - MazeManager.player.transform.position).magnitude < 4.0f)
+				timeActive += CHARGING_MULTIPLIER * Time.deltaTime;
+			else
+				timeActive += Time.deltaTime;
+			
 			return timeActive > ACTIVE_DURATION;
 		}
 

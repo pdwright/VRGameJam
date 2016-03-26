@@ -13,6 +13,8 @@ public class MazeManager : MonoBehaviour
     {
 		Debug.Assert(instance == null);
 		instance = this;
+
+		player = GameObject.Find("Player");
 		
 		mMazeData = new MazeData.Maze(WIDTH, HEIGHT);
 		mMazeData.Braid(true);
@@ -94,6 +96,7 @@ public class MazeManager : MonoBehaviour
 	private float mfWallSize;
 
 	public static MazeManager instance = null;
+	public static GameObject player = null;
 
 	public Transform[] sourceWalls;
 	public Transform sourceDoor;
