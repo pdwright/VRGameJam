@@ -3,9 +3,12 @@ using System.Collections;
 
 public class Monster : StateMachine {
 
+	static float DETECTION_RADIUS = 10.0f;
+
 	private enum States : int
 	{
 		Wandering,
+		HomingIn,
 
 		Count
 	}
@@ -15,6 +18,7 @@ public class Monster : StateMachine {
 		InitStateMachine((int)States.Count);
 
 		SetStateFn((int)States.Wandering, UpdateWandering);
+		SetStateFn((int)States.HomingIn, UpdateHomingIn);
 
 		SetNextState((int)States.Wandering);
 	}
@@ -33,23 +37,55 @@ public class Monster : StateMachine {
 
 	private void UpdateWandering()
 	{
-		var playerPos = MazeManager.instance.ToIndex(MazeManager.player.transform.position);
+		Vector3 playerPos = MazeManager.player.transform.position;
+		
+		MoveWithData(playerPos, 5.0f, true);
 
+		if((playerPos - transform.position).magnitude < DETECTION_RADIUS)
+			SetNextState((int)States.HomingIn);
+
+		DrawShortestPathToPlayer();
+	}
+
+	private void UpdateHomingIn()
+	{
+		Vector3 playerPos = MazeManager.player.transform.position;
+
+		MoveWithData(playerPos, 5.0f, false);
+
+		DrawShortestPathToPlayer();
+	}
+
+	private void DrawShortestPathToPlayer()
+	{
+		var targetPos = MazeManager.instance.ToIndex(MazeManager.player.transform.position);
+		var bestPath = mMonsterData.mMaze.FindBestPath(mMonsterData.GetPosX(), mMonsterData.GetPosY(), targetPos[0], targetPos[1]);
+		MazeData.Util.DrawPath(mMonsterData.GetPosX(), mMonsterData.GetPosY(), bestPath, MazeManager.instance.mWallSize);
+
+		MazeData.Util.DrawCircle(transform.position, DETECTION_RADIUS, Color.red);
+	}
+
+	private void MoveWithData(Vector3 _target, float _speed, bool _wander)
+	{
+		var targetPos = MazeManager.instance.ToIndex(MazeManager.player.transform.position);
+		
 		var curTargetX = mMonsterData.GetPosX();
 		var curTargetY = mMonsterData.GetPosY();
 
 		var curTargetPos = MazeManager.instance.GetCellCenterPos(curTargetX, curTargetY);
 
 		if((curTargetPos - transform.position).magnitude < 0.2f)
-			mMonsterData.Wander(playerPos[0], playerPos[1], 0.3f);
+		{
+			if(_wander)
+				mMonsterData.Wander(targetPos[0], targetPos[1], 0.3f);
+			else
+				mMonsterData.HomeIn(targetPos[0], targetPos[1]);
+		}
 
-		MoveTo(curTargetPos, 5.0f);
-
-		var bestPath = mMonsterData.mMaze.FindBestPath(mMonsterData.GetPosX(), mMonsterData.GetPosY(), playerPos[0], playerPos[1]);
-		MazeData.Util.DrawPath(mMonsterData.GetPosX(), mMonsterData.GetPosY(), bestPath, MazeManager.instance.mWallSize);
+		MoveToPos(curTargetPos, _speed);
 	}
 
-	private void MoveTo(Vector3 _pos, float _speed)
+	private void MoveToPos(Vector3 _pos, float _speed)
 	{
 		transform.position = Vector3.MoveTowards(transform.position, _pos, _speed * Time.deltaTime);
 
