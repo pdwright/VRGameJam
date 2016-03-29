@@ -13,10 +13,8 @@ public class Monster : StateMachine {
 		Count
 	}
 
-	Monster()
+	public Monster() : base((int)States.Count)
 	{
-		InitStateMachine((int)States.Count);
-
 		SetStateFn((int)States.Wandering, UpdateWandering);
 		SetStateFn((int)States.HomingIn, UpdateHomingIn);
 

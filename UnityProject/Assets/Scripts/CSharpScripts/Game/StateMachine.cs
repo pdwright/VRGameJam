@@ -9,7 +9,7 @@ public class StateMachine : MonoBehaviour {
 
 	const int INVALID_STATE = -1;
 
-	protected void InitStateMachine(int _stateCount)
+	protected StateMachine(int _stateCount)
 	{
 		mCurrentState = mNextState = INVALID_STATE;
 

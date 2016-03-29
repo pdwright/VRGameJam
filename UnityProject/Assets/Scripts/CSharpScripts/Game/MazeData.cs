@@ -854,7 +854,7 @@ namespace MazeData
 			int lastPosX = -1;
 			int lastPosY = -1;
 
-			if(_considerPrevPos)
+			if(_considerPrevPos && mLastMove != Direction.Count)
 			{
 				Direction op = Util.Opposite(mLastMove);
 				lastPosX = mPosX + Util.xDelta[(int)op];
