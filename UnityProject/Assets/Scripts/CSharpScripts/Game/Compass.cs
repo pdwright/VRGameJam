@@ -43,7 +43,7 @@ public class Compass : MonoBehaviour {
 
 	private void UpdateTarget()
 	{
-		if(mTargetPos == null)
+		if(mTargetPos == Vector3.zero)
 			return;
 		
 		Vector3 diffToTarget = mTargetPos - transform.position;

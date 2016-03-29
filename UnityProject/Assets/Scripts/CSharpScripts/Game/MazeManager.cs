@@ -21,7 +21,7 @@ public class MazeManager : MonoBehaviour
 
 		//mMonster = new MazeData.Monster(mMazeData, WIDTH - 2, HEIGHT - 2);
 
-		mfWallSize = sourceWalls[0].GetComponent<Renderer>().bounds.size.x;
+		mWallSize = sourceWalls[0].GetComponent<Renderer>().bounds.size.x;
 
 		mWalls = MazeData.Util.CreateWalls(mMazeData, sourceWalls);
 		mDoors = MazeData.Util.CreateDoors(mMazeData, sourceDoor.gameObject);
@@ -39,7 +39,7 @@ public class MazeManager : MonoBehaviour
 			mfShuffleDoorTimer = 0.0f;
 		}
 
-		MazeData.Util.DebugDraw(mMazeData, mfWallSize, null);
+		MazeData.Util.DebugDraw(mMazeData, mWallSize, null);
 
 		/*mfMonsterMoveTimer += Time.deltaTime;
 		if(mfMonsterMoveTimer > 0.3f)
@@ -79,7 +79,15 @@ public class MazeManager : MonoBehaviour
 
 	public Vector3 GetCellCenterPos(int _i, int _j)
 	{
-		return new Vector3(((float)_i + 0.5f) * mfWallSize, 0.0f, ((float)_j + 0.5f) * mfWallSize);
+		return new Vector3(((float)_i + 0.5f) * mWallSize, 0.0f, ((float)_j + 0.5f) * mWallSize);
+	}
+
+	public int[] ToIndex(Vector3 _pos)
+	{
+		var result = new int[2];
+		result[0] = (int)(_pos.x / mWallSize);
+		result[1] = (int)(_pos.z / mWallSize);
+		return result;
 	}
 
 	public MazeData.Maze mMazeData 
@@ -93,7 +101,7 @@ public class MazeManager : MonoBehaviour
 	List<GameObject> mWalls;
 	List<GameObject> mDoors;
 
-	private float mfWallSize;
+	public float mWallSize { get; private set; }
 
 	public static MazeManager instance = null;
 	public static GameObject player = null;

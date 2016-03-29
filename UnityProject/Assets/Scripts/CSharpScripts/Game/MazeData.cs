@@ -900,7 +900,7 @@ namespace MazeData
 
         private Direction mLastMove;
 
-        private Maze mMaze;
+		public Maze mMaze { get; private set; }
 
         private int[,] mVisitedCount;
     }
